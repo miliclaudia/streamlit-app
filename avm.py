@@ -111,7 +111,7 @@ def sidebar_menu():
 
 def page_home():
     # Titlu Principal
-    st.markdown('<div class="home-title">Descrierea Aplicației EDA cu Streamlit</div>', unsafe_allow_html=True)
+    st.markdown('<div class="home-title">Descriere Aplicație EDA cu Streamlit</div>', unsafe_allow_html=True)
     
     # Text introductiv
     st.markdown("""
@@ -224,7 +224,7 @@ def page_cerinta_1():
                 st.session_state['df'] = df_new
             st.success(f"✅ Fișierul **{uploaded_file.name}** a fost citit corect!")
     
-    # 2. Afișare date persistente (Chiar dacă navighezi, 'df_raw' rămâne în memorie)
+    
     if 'df_raw' in st.session_state:
         df = st.session_state['df_raw']
         
@@ -312,7 +312,7 @@ def page_cerinta_2():
 
     df = st.session_state['df']
 
-    # --- METRICI GLOBALE ---
+    
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Total Rânduri", len(df))
     m2.metric("Total Coloane", len(df.columns))
