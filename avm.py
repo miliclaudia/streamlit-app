@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. CSS PENTRU UI ---
+# --- 2. CSS PENTRU UI (ADAPTABIL LIGHT/DARK) ---
 st.markdown("""
 <style>
     /* Stiluri Generale */
@@ -24,6 +24,7 @@ st.markdown("""
         margin-bottom: 2rem;
         border-bottom: 2px solid #4da6ff;
     }
+    
     .sub-header {
         font-size: 1.5rem;
         color: #ffa600; 
@@ -37,43 +38,68 @@ st.markdown("""
     .home-title {
         font-size: 2.8rem;
         font-weight: bold;
-        color: #2c3e50;
+        /* Folosim o culoare care se vede bine pe ambele teme sau lasam default */
         text-align: center;
         padding-bottom: 20px;
         margin-bottom: 30px;
-        border-bottom: 1px solid #eee;
-    }
-    /* Adaptare culoare titlu pentru dark mode */
-    @media (prefers-color-scheme: dark) {
-        .home-title {
-            color: #ffffff;
-            border-bottom: 1px solid #444;
-        }
+        border-bottom: 1px solid var(--text-color);
     }
     
     .section-title {
         font-size: 1.6rem;
         font-weight: bold;
-        color: #ff9f43; /* Portocaliu deschis */
+        color: #ff9f43; 
         margin-top: 25px;
         margin-bottom: 10px;
     }
     
     .description-text {
         font-size: 1.1rem;
-        line-height: 1.7; /* Spatiere mai mare intre randuri */
+        line-height: 1.7;
         text-align: justify;
         margin-bottom: 15px;
-        color: #e0e0e0; /* Gri deschis pentru text pe fundal inchis */
+        /* Nu fortam culoarea textului, lasam Streamlit sa decida (negru pe light, alb pe dark) */
     }
     
-    /* Container subtil pentru fiecare cerinta */
+    /* Container subtil pentru cerinte - Adaptabil */
     .req-box {
         padding: 15px 20px;
         border-radius: 8px;
-        background-color: rgba(255, 255, 255, 0.05); /* Fundal foarte subtil */
+        /* Fundal usor vizibil pe ambele teme (gri foarte deschis transparent) */
+        background-color: rgba(128, 128, 128, 0.1); 
         margin-bottom: 20px;
         border-left: 4px solid #4da6ff;
+    }
+
+    /* CARD STUDENT - DESIGN NOU ADAPTABIL */
+    .student-card {
+        /* Folosim variabile CSS Streamlit pentru a se adapta la tema */
+        background-color: var(--secondary-background-color);
+        border: 1px solid #4da6ff;
+        border-radius: 15px;
+        padding: 40px 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .student-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        /* Culoare adaptabila */
+        color: var(--text-color);
+    }
+    
+    .student-group {
+        font-size: 1.4rem;
+        color: #ffa600;
+        font-weight: bold;
+        margin-bottom: 0px;
+    }
+    
+    .icon-big {
+        font-size: 5rem;
+        margin-bottom: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -111,7 +137,7 @@ def sidebar_menu():
 
 def page_home():
     # Titlu Principal
-    st.markdown('<div class="home-title">Descriere Aplicație EDA cu Streamlit</div>', unsafe_allow_html=True)
+    st.markdown('<div class="home-title">Descrierea Aplicației EDA cu Streamlit</div>', unsafe_allow_html=True)
     
     # Text introductiv
     st.markdown("""
@@ -206,7 +232,7 @@ def page_home():
     
     st.markdown("---")
     # Footer simplu
-    st.markdown('<div style="text-align: center; color: #888;">Autor Proiect: <b>Militaru Maria Claudia</b> | Grupa 1127 BDSA</div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align: center; color: #888;">Autor Proiect: <b>Militaru Maria Claudia</b> | Grupa 1027 BDSA</div>', unsafe_allow_html=True)
 
 def page_cerinta_1():
     st.markdown('<h1 class="main-header">CERINȚA 1: Încărcare și Filtrare Date</h1>', unsafe_allow_html=True)
@@ -312,7 +338,7 @@ def page_cerinta_2():
 
     df = st.session_state['df']
 
-    
+    # --- METRICI GLOBALE ---
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Total Rânduri", len(df))
     m2.metric("Total Coloane", len(df.columns))
@@ -322,7 +348,10 @@ def page_cerinta_2():
     
     total_cells = df.shape[0] * df.shape[1]
     total_missing = df.isnull().sum().sum()
-    pct_missing = (total_missing / total_cells) * 100
+    if total_cells > 0:
+        pct_missing = (total_missing / total_cells) * 100
+    else:
+        pct_missing = 0
     m4.metric("Valori Lipsă", f"{pct_missing:.1f}%")
 
     st.markdown("---")
@@ -404,8 +433,17 @@ def page_cerinta_2():
             st.write('<div style="text-align:center">Galben = Lipsă, Albastru = Prezent</div>', unsafe_allow_html=True)
             
             fig_heat, ax = plt.subplots(figsize=(12, 5))
+            # Ajustare pentru tema dark/light la plot-ul matplotlib
+            fig_heat.patch.set_alpha(0) # Transparent background
+            ax.patch.set_alpha(0)
+            
+            # Culori: Albastru (prezent), Galben (lipsa)
             custom_colors = ['#000099', '#ffff00'] 
             sns.heatmap(df.head(50).isnull(), yticklabels=False, cbar=False, cmap=sns.color_palette(custom_colors), ax=ax)
+            
+            # Ajustare culoare text axe pentru vizibilitate
+            ax.tick_params(colors='gray', which='both')
+            
             st.pyplot(fig_heat)
         else:
             st.success("✅ Nu există valori lipsă în dataset!")
